@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -24,5 +25,13 @@ export class UserService {
 
   remove(id: number) {
     return this.repo.delete(id);
+  }
+
+  async getUserByEmail(email: string): Promise<any> {
+    const user = await this.repo.findOne({ email });
+    if (!user) {
+      new BadRequestException('User not found');
+    }
+    return user;
   }
 }
