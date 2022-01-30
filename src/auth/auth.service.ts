@@ -1,9 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/login.dto';
 @Injectable()
 export class AuthService {
-  constructor(private readonly _usersService: UserService) {}
+  constructor(
+    private readonly _usersService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
   async validateUser(payload: LoginDto): Promise<any> {
     const user = await this._usersService.getUserByEmail(payload.email);
@@ -18,7 +22,10 @@ export class AuthService {
     return true;
   }
 
-  async login(payload: LoginDto) {
-    return payload;
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.userId };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
